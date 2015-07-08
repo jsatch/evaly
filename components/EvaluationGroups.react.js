@@ -8,6 +8,10 @@ var List = Mui.List;
 var ListItem = Mui.ListItem;
 
 export default class EvaluationGroups extends React.Component{
+  onListSelected(key) {
+    this.props.onTeamSelected(key);
+  }
+
   render() {
     return(
       <div className="evaluation-groups">
@@ -15,7 +19,10 @@ export default class EvaluationGroups extends React.Component{
         <List>
           {
             this.props.teams.map((team) => {
-              return <ListItem key={team.id} ref={team.id}
+              return <ListItem
+                key={team.id}
+                ref={team.id}
+                onClick={this.onListSelected.bind(this, team.id)}
                 secondaryText="Score: 0.0">
                 {team.name}
               </ListItem>

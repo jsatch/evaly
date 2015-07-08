@@ -37,7 +37,7 @@ export default class EvaluationListPage extends React.Component{
        });
     }else if (data.event === EvaluationStore.events.START_EVALUATION){
         this.setState({
-          evaluationList: [],
+          evaluationList: this.state.evaluationList,
           modal:true,
           eventConfig: data.data
         });
@@ -65,7 +65,7 @@ export default class EvaluationListPage extends React.Component{
         title="Evaluación"
         modal={true}
         openImmediately={true}>
-        <Evaluation eventConfig={this.state.eventConfig}/>
+        <Evaluation initialEventConfig={this.state.eventConfig}/>
       </Dialog>;
     }
 

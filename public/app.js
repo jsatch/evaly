@@ -17,7 +17,8 @@ var _reflux2 = _interopRequireDefault(_reflux);
 exports["default"] = _reflux2["default"].createActions({
   "listEvaluationsAction": { children: ["completed", "failed"] },
   "startEvaluationAction": { children: ["completed", "failed"] },
-  "saveEvaluationMarkAction": { children: ["completed", "failed"] }
+  "saveEvaluationMarkAction": { children: ["completed", "failed"] },
+  "getEvaluationDataAction": { children: ["completed", "failed"] }
 });
 module.exports = exports["default"];
 
@@ -148,13 +149,14 @@ var Evaluation = (function (_React$Component) {
 
     _get(Object.getPrototypeOf(Evaluation.prototype), 'constructor', this).call(this, props);
     this.state = {
-      teamPos: 0,
+      eventConfig: props.initialEventConfig,
       status: ''
     };
 
     // Bindings for this
     this.saveEvaluationMark = this.saveEvaluationMark.bind(this);
     this.onEventsFinished = this.onEventsFinished.bind(this);
+    this.onTeamSelected = this.onTeamSelected.bind(this);
   }
 
   _inherits(Evaluation, _React$Component);
@@ -163,18 +165,30 @@ var Evaluation = (function (_React$Component) {
     key: 'saveEvaluationMark',
     value: function saveEvaluationMark(data) {
       this.setState({
-        teamPos: this.state.teamPos,
+        eventConfig: this.state.eventConfig,
         status: 'saving'
       });
       _actionsEvaluationActions2['default'].saveEvaluationMarkAction(data);
     }
   }, {
+    key: 'onTeamSelected',
+    value: function onTeamSelected(pos) {
+      _actionsEvaluationActions2['default'].getEvaluationDataAction(this.state.eventConfig.idEvaluation, pos);
+    }
+  }, {
     key: 'onEventsFinished',
-    value: function onEventsFinished() {
-      this.setState({
-        teamPos: this.state.teamPos,
-        status: 'saved'
-      });
+    value: function onEventsFinished(data) {
+      if (data.event === _storesEvaluationStore2['default'].events.SAVE_EVALUATION_MARK) {
+        this.setState({
+          eventConfig: this.state.eventConfig,
+          status: 'saved'
+        });
+      } else if (data.event === _storesEvaluationStore2['default'].events.GET_EVALUATION_DATA) {
+        this.setState({
+          eventConfig: data.data,
+          status: 'saved'
+        });
+      }
     }
   }, {
     key: 'componentDidMount',
@@ -194,8 +208,8 @@ var Evaluation = (function (_React$Component) {
             _reactBootstrapLibCol2['default'],
             { md: 8 },
             _react2['default'].createElement(_EvaluationFormReact2['default'], {
-              parameters: this.props.eventConfig.parameters,
-              team: this.props.eventConfig.teams[this.state.teamPos],
+              parameters: this.state.eventConfig.parameters,
+              team: this.state.eventConfig.team,
               saveEvaluationMark: this.saveEvaluationMark,
               status: this.state.status })
           ),
@@ -203,7 +217,8 @@ var Evaluation = (function (_React$Component) {
             _reactBootstrapLibCol2['default'],
             { md: 4 },
             _react2['default'].createElement(_EvaluationGroupsReact2['default'], {
-              teams: this.props.eventConfig.teams })
+              teams: this.state.eventConfig.teams,
+              onTeamSelected: this.onTeamSelected })
           )
         )
       );
@@ -366,8 +381,15 @@ var EvaluationGroups = (function (_React$Component) {
   _inherits(EvaluationGroups, _React$Component);
 
   _createClass(EvaluationGroups, [{
+    key: 'onListSelected',
+    value: function onListSelected(key) {
+      this.props.onTeamSelected(key);
+    }
+  }, {
     key: 'render',
     value: function render() {
+      var _this = this;
+
       return _react2['default'].createElement(
         'div',
         { className: 'evaluation-groups' },
@@ -382,7 +404,10 @@ var EvaluationGroups = (function (_React$Component) {
           this.props.teams.map(function (team) {
             return _react2['default'].createElement(
               ListItem,
-              { key: team.id, ref: team.id,
+              {
+                key: team.id,
+                ref: team.id,
+                onClick: _this.onListSelected.bind(_this, team.id),
                 secondaryText: 'Score: 0.0' },
               team.name
             );
@@ -659,7 +684,7 @@ var EvaluationListPage = (function (_React$Component) {
         });
       } else if (data.event === _storesEvaluationStore2['default'].events.START_EVALUATION) {
         this.setState({
-          evaluationList: [],
+          evaluationList: this.state.evaluationList,
           modal: true,
           eventConfig: data.data
         });
@@ -691,7 +716,7 @@ var EvaluationListPage = (function (_React$Component) {
             title: 'Evaluación',
             modal: true,
             openImmediately: true },
-          _react2['default'].createElement(_EvaluationReact2['default'], { eventConfig: this.state.eventConfig })
+          _react2['default'].createElement(_EvaluationReact2['default'], { initialEventConfig: this.state.eventConfig })
         );
       }
 
@@ -41346,7 +41371,8 @@ var EvaluationStore = _reflux2['default'].createStore({
   events: {
     EVALUATION_LOADED: 'EVALUATION_LOADED',
     START_EVALUATION: 'START_EVALUATION',
-    SAVE_EVALUATION_MARK: 'SAVE_EVALUATION_MARK'
+    SAVE_EVALUATION_MARK: 'SAVE_EVALUATION_MARK',
+    GET_EVALUATION_DATA: 'GET_EVALUATION_DATA'
   },
   init: function init() {
     this.listenTo(_actionsEvaluationActions2['default'].listEvaluationsAction, 'onListEvaluationsAction');
@@ -41355,6 +41381,8 @@ var EvaluationStore = _reflux2['default'].createStore({
     this.listenTo(_actionsEvaluationActions2['default'].startEvaluationAction.completed, 'onLoadEvaluationCompletedAction');
     this.listenTo(_actionsEvaluationActions2['default'].saveEvaluationMarkAction, 'onSaveEvaluationMarkAction');
     this.listenTo(_actionsEvaluationActions2['default'].saveEvaluationMarkAction.completed, 'onSaveEvaluationMarkCompletedAction');
+    this.listenTo(_actionsEvaluationActions2['default'].getEvaluationDataAction, 'onGetEvaluationDataAction');
+    this.listenTo(_actionsEvaluationActions2['default'].getEvaluationDataAction.completed, 'onGetEvaluationDataCompletedAction');
   },
   onListEvaluationsAction: function onListEvaluationsAction() {
     console.log('EvaluationStore', 'Se hará conexión remota');
@@ -41369,9 +41397,31 @@ var EvaluationStore = _reflux2['default'].createStore({
   },
   onLoadEvaluationAction: function onLoadEvaluationAction(idEval) {
     _actionsEvaluationActions2['default'].startEvaluationAction.completed({
+      idEvaluation: idEval,
+      team: { id: 1, name: 'Grupo 5' },
       parameters: [{ id: 1, name: 'Dicción', min_range: 0, max_range: 5, weight: 0.5 }, { id: 2, name: 'Programación', min_range: 0, max_range: 5, weight: 0.5 }],
       teams: [{ id: 1, name: 'Grupo 5' }, { id: 2, name: 'Los cuates' }]
     });
+    /*evaluationActions.startEvaluationAction.completed({
+      [
+        {
+          id: 1,
+          name: 'Grupo 5',
+          parameters: [
+            {id: 1, name: 'Dicción', min_range: 0, max_range: 5, weight: 0.5},
+            {id: 2, name: 'Programación', min_range: 0, max_range: 5, weight: 0.5}
+          ]
+        },
+        {
+          id: 1,
+          name: 'Grupo 5',
+          parameters: [
+            {id: 1, name: 'Dicción', min_range: 0, max_range: 5, weight: 0.5},
+            {id: 2, name: 'Programación', min_range: 0, max_range: 5, weight: 0.5}
+          ]
+        },
+      ]
+    });*/
   },
   onLoadEvaluationCompletedAction: function onLoadEvaluationCompletedAction(data) {
     this.trigger({
@@ -41389,6 +41439,21 @@ var EvaluationStore = _reflux2['default'].createStore({
   onSaveEvaluationMarkCompletedAction: function onSaveEvaluationMarkCompletedAction(data) {
     this.trigger({
       event: this.events.SAVE_EVALUATION_MARK,
+      data: data
+    });
+  },
+  onGetEvaluationDataAction: function onGetEvaluationDataAction(idEval, request) {
+    console.log('EvaluationStore.onGetEvaluationDataAction', request);
+    _actionsEvaluationActions2['default'].getEvaluationDataAction.completed({
+      idEvaluation: idEval,
+      team: { id: 2, name: 'Los cuates' },
+      parameters: [{ id: 1, name: 'Dicción', min_range: 0, max_range: 5, weight: 0.5, value: 56 }, { id: 2, name: 'Programación', min_range: 0, max_range: 5, weight: 0.5, value: 44 }],
+      teams: [{ id: 1, name: 'Grupo 5' }, { id: 2, name: 'Los cuates' }]
+    });
+  },
+  onGetEvaluationDataCompletedAction: function onGetEvaluationDataCompletedAction(data) {
+    this.trigger({
+      event: this.events.GET_EVALUATION_DATA,
       data: data
     });
   }

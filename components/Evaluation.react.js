@@ -18,26 +18,39 @@ export default class Evaluation extends React.Component{
   constructor(props){
     super(props);
     this.state = {
-      teamPos: 0,
+      eventConfig: props.initialEventConfig,
       status: ''
     }
 
     // Bindings for this
     this.saveEvaluationMark = this.saveEvaluationMark.bind(this);
     this.onEventsFinished = this.onEventsFinished.bind(this);
+    this.onTeamSelected = this.onTeamSelected.bind(this);
   }
   saveEvaluationMark(data) {
     this.setState({
-      teamPos : this.state.teamPos,
+      eventConfig : this.state.eventConfig,
       status: 'saving'
     });
     evaluationActions.saveEvaluationMarkAction(data);
   }
-  onEventsFinished(){
-    this.setState({
-      teamPos : this.state.teamPos,
-      status: 'saved'
-    });
+  onTeamSelected(pos){
+    evaluationActions.getEvaluationDataAction(
+      this.state.eventConfig.idEvaluation, pos);
+  }
+  onEventsFinished(data){
+    if (data.event === EvaluationStore.events.SAVE_EVALUATION_MARK){
+      this.setState({
+        eventConfig : this.state.eventConfig,
+        status: 'saved'
+      });
+    }else if (data.event === EvaluationStore.events.GET_EVALUATION_DATA){
+      this.setState({
+        eventConfig : data.data,
+        status: ''
+      });
+    }
+
   }
   componentDidMount(){
     this.unsubscribe = EvaluationStore.listen(this.onEventsFinished);
@@ -48,14 +61,15 @@ export default class Evaluation extends React.Component{
         <Row>
           <Col md={8}>
             <EvaluationForm
-              parameters={this.props.eventConfig.parameters}
-              team={this.props.eventConfig.teams[this.state.teamPos]}
+              parameters={this.state.eventConfig.parameters}
+              team={this.state.eventConfig.team}
               saveEvaluationMark={this.saveEvaluationMark}
               status={this.state.status}/>
           </Col>
           <Col md={4}>
             <EvaluationGroups
-              teams={this.props.eventConfig.teams}/>
+              teams={this.state.eventConfig.teams}
+              onTeamSelected={this.onTeamSelected}/>
           </Col>
         </Row>
       </Grid>

@@ -9,7 +9,8 @@ var EvaluationStore = Reflux.createStore({
   events : {
     EVALUATION_LOADED: 'EVALUATION_LOADED',
     START_EVALUATION: 'START_EVALUATION',
-    SAVE_EVALUATION_MARK: 'SAVE_EVALUATION_MARK'
+    SAVE_EVALUATION_MARK: 'SAVE_EVALUATION_MARK',
+    GET_EVALUATION_DATA: 'GET_EVALUATION_DATA'
   },
   init: function(){
     this.listenTo(evaluationActions.listEvaluationsAction,
@@ -23,7 +24,11 @@ var EvaluationStore = Reflux.createStore({
     this.listenTo(evaluationActions.saveEvaluationMarkAction,
       'onSaveEvaluationMarkAction');
     this.listenTo(evaluationActions.saveEvaluationMarkAction.completed,
-      'onSaveEvaluationMarkCompletedAction')
+      'onSaveEvaluationMarkCompletedAction');
+    this.listenTo(evaluationActions.getEvaluationDataAction,
+      'onGetEvaluationDataAction');
+    this.listenTo(evaluationActions.getEvaluationDataAction.completed,
+      'onGetEvaluationDataCompletedAction');
   },
   onListEvaluationsAction: function(){
     console.log("EvaluationStore", "Se hará conexión remota");
@@ -43,6 +48,8 @@ var EvaluationStore = Reflux.createStore({
   },
   onLoadEvaluationAction: function(idEval){
     evaluationActions.startEvaluationAction.completed({
+      idEvaluation: idEval,
+      team: {id:1, name: 'Grupo 5'},
       parameters: [
         {id: 1, name: 'Dicción', min_range: 0, max_range: 5, weight: 0.5},
         {id: 2, name: 'Programación', min_range: 0, max_range: 5, weight: 0.5}
@@ -52,6 +59,26 @@ var EvaluationStore = Reflux.createStore({
         {id:2, name: 'Los cuates'},
       ]
     });
+    /*evaluationActions.startEvaluationAction.completed({
+      [
+        {
+          id: 1,
+          name: 'Grupo 5',
+          parameters: [
+            {id: 1, name: 'Dicción', min_range: 0, max_range: 5, weight: 0.5},
+            {id: 2, name: 'Programación', min_range: 0, max_range: 5, weight: 0.5}
+          ]
+        },
+        {
+          id: 1,
+          name: 'Grupo 5',
+          parameters: [
+            {id: 1, name: 'Dicción', min_range: 0, max_range: 5, weight: 0.5},
+            {id: 2, name: 'Programación', min_range: 0, max_range: 5, weight: 0.5}
+          ]
+        },
+      ]
+    });*/
   },
   onLoadEvaluationCompletedAction: function(data){
     this.trigger({
@@ -69,6 +96,27 @@ var EvaluationStore = Reflux.createStore({
   onSaveEvaluationMarkCompletedAction: function(data){
     this.trigger({
       event: this.events.SAVE_EVALUATION_MARK,
+      data: data
+    });
+  },
+  onGetEvaluationDataAction: function(idEval, request){
+    console.log("EvaluationStore.onGetEvaluationDataAction", request);
+    evaluationActions.getEvaluationDataAction.completed({
+      idEvaluation: idEval,
+      team: {id:2, name: 'Los cuates'},
+      parameters: [
+        {id: 1, name: 'Dicción', min_range: 0, max_range: 5, weight: 0.5, value: 56},
+        {id: 2, name: 'Programación', min_range: 0, max_range: 5, weight: 0.5, value: 44}
+      ],
+      teams:[
+        {id:1, name: 'Grupo 5'},
+        {id:2, name: 'Los cuates'},
+      ]
+    });
+  },
+  onGetEvaluationDataCompletedAction: function(data){
+    this.trigger({
+      event: this.events.GET_EVALUATION_DATA,
       data: data
     });
   }
