@@ -2,7 +2,6 @@
  * Module dependencies
  */
 import React from 'react';
-import Modal from 'react-bootstrap/lib/Modal';
 import TopPart from './TopPart.react';
 import EvaluationListContent from './EvaluationListContent.react';
 import BottomPart from './BottomPart.react';
@@ -63,7 +62,6 @@ export default class EvaluationListPage extends React.Component{
       dialog = <Dialog
         ref="evaluationDialog"
         title="Evaluación"
-        modal={true}
         openImmediately={true}>
         <Evaluation initialEventConfig={this.state.eventConfig}/>
       </Dialog>;

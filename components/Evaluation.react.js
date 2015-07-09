@@ -45,6 +45,7 @@ export default class Evaluation extends React.Component{
         status: 'saved'
       });
     }else if (data.event === EvaluationStore.events.GET_EVALUATION_DATA){
+      console.log(data.data);
       this.setState({
         eventConfig : data.data,
         status: ''
@@ -61,7 +62,7 @@ export default class Evaluation extends React.Component{
         <Row>
           <Col md={8}>
             <EvaluationForm
-              parameters={this.state.eventConfig.parameters}
+              initialParameters={this.state.eventConfig.parameters}
               team={this.state.eventConfig.team}
               saveEvaluationMark={this.saveEvaluationMark}
               status={this.state.status}/>

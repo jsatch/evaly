@@ -2,8 +2,12 @@
  * Module dependencies
  */
 import Reflux from 'reflux';
+import request from 'request';
 
 import evaluationActions from '../actions/EvaluationActions'
+
+// service URI
+import config from '../config';
 
 var EvaluationStore = Reflux.createStore({
   events : {
@@ -33,12 +37,16 @@ var EvaluationStore = Reflux.createStore({
   onListEvaluationsAction: function(){
     console.log("EvaluationStore", "Se hará conexión remota");
     // Se debe de hacer la conexión remota
-    evaluationActions.listEvaluationsAction.completed([
-      {id : 1, name: 'Evaluacion 1', status: 'Iniciado'},
-      {id : 2, name: 'Evaluacion 2', status: 'Por Iniciar'},
-      {id : 3, name: 'Evaluacion 3', status: 'Finalizado'},
-      {id : 4, name: 'Evaluacion 4', status: 'Iniciado'}
-    ]);
+    request.get(
+      `${config.URL_REST_SERVICES}/evaluation`,
+      (error, response, body) => {
+        if (!error && response.statusCode == 200) {
+          evaluationActions.listEvaluationsAction.completed(JSON.parse(body));
+        }else{
+          // TODO: Debe de poder manejarse el error
+        }
+      }
+    );
   },
   onListEvaluationsCompletedAction: function(data){
     this.trigger({
@@ -47,38 +55,16 @@ var EvaluationStore = Reflux.createStore({
     });
   },
   onLoadEvaluationAction: function(idEval){
-    evaluationActions.startEvaluationAction.completed({
-      idEvaluation: idEval,
-      team: {id:1, name: 'Grupo 5'},
-      parameters: [
-        {id: 1, name: 'Dicción', min_range: 0, max_range: 5, weight: 0.5},
-        {id: 2, name: 'Programación', min_range: 0, max_range: 5, weight: 0.5}
-      ],
-      teams:[
-        {id:1, name: 'Grupo 5'},
-        {id:2, name: 'Los cuates'},
-      ]
-    });
-    /*evaluationActions.startEvaluationAction.completed({
-      [
-        {
-          id: 1,
-          name: 'Grupo 5',
-          parameters: [
-            {id: 1, name: 'Dicción', min_range: 0, max_range: 5, weight: 0.5},
-            {id: 2, name: 'Programación', min_range: 0, max_range: 5, weight: 0.5}
-          ]
-        },
-        {
-          id: 1,
-          name: 'Grupo 5',
-          parameters: [
-            {id: 1, name: 'Dicción', min_range: 0, max_range: 5, weight: 0.5},
-            {id: 2, name: 'Programación', min_range: 0, max_range: 5, weight: 0.5}
-          ]
-        },
-      ]
-    });*/
+    request.get(
+      `${config.URL_REST_SERVICES}/evaluation/${idEval}`,
+      (error, response, body) => {
+        if (!error && response.statusCode == 200) {
+          evaluationActions.startEvaluationAction.completed(JSON.parse(body));
+        }else{
+          // TODO: Debe de poder manejarse el error
+        }
+      }
+    );
   },
   onLoadEvaluationCompletedAction: function(data){
     this.trigger({
@@ -89,9 +75,18 @@ var EvaluationStore = Reflux.createStore({
 
   onSaveEvaluationMarkAction: function(evaluation){
     console.log("EvaluationStore.onSaveEvaluationMarkAction", evaluation);
-    evaluationActions.saveEvaluationMarkAction.completed({
-      error: ''
-    });
+    request.post({
+        url: `${config.URL_REST_SERVICES}/evaluation`,
+        json: evaluation
+      },
+      (error, response, body) => {
+        if (!error && response.statusCode == 200) {
+          evaluationActions.saveEvaluationMarkAction.completed({error: ''});
+        }else{
+          // TODO: Debe de poder manejarse el error
+        }
+      }
+    );
   },
   onSaveEvaluationMarkCompletedAction: function(data){
     this.trigger({
@@ -99,9 +94,21 @@ var EvaluationStore = Reflux.createStore({
       data: data
     });
   },
-  onGetEvaluationDataAction: function(idEval, request){
-    console.log("EvaluationStore.onGetEvaluationDataAction", request);
-    evaluationActions.getEvaluationDataAction.completed({
+  onGetEvaluationDataAction: function(idEval, idTeam){
+    console.log("EvaluationStore.onGetEvaluationDataAction", idTeam);
+
+    request.get(
+      `${config.URL_REST_SERVICES}/evaluation/${idEval}/${idTeam}`,
+      (error, response, body) => {
+        if (!error && response.statusCode == 200) {
+          evaluationActions.getEvaluationDataAction.completed(JSON.parse(body));
+        }else{
+          // TODO: Debe de poder manejarse el error
+        }
+      }
+    );
+
+    /*evaluationActions.getEvaluationDataAction.completed({
       idEvaluation: idEval,
       team: {id:2, name: 'Los cuates'},
       parameters: [
@@ -112,7 +119,7 @@ var EvaluationStore = Reflux.createStore({
         {id:1, name: 'Grupo 5'},
         {id:2, name: 'Los cuates'},
       ]
-    });
+    });*/
   },
   onGetEvaluationDataCompletedAction: function(data){
     this.trigger({

@@ -29,11 +29,9 @@ export default class EvaluationList extends React.Component{
     );
   }
   onButtonEvaluationStartClicked() {
-    console.log("EvaluationList.react", "Debe iniciar la evaluacion " +
-      this.evaluationSelectedId);
     (this.props.onEvaluationStart)(this.evaluationSelectedId);
   }
   onEvaluationSelected (rows){
-    this.evaluationSelectedId = rows[0];
+    this.evaluationSelectedId = this.props.evaluationList[rows[0]].id;
   }
 }
