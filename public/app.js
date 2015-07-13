@@ -99686,6 +99686,7 @@ var EvaluationStore = _reflux2['default'].createStore({
   onLoadEvaluationAction: function onLoadEvaluationAction(idEval) {
     _request2['default'].get(_config2['default'].URL_REST_SERVICES + '/evaluation/' + idEval, function (error, response, body) {
       if (!error && response.statusCode == 200) {
+        console.log(JSON.parse(body));
         _actionsEvaluationActions2['default'].startEvaluationAction.completed(JSON.parse(body));
       } else {}
     });

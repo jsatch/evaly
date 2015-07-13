@@ -59,6 +59,7 @@ var EvaluationStore = Reflux.createStore({
       `${config.URL_REST_SERVICES}/evaluation/${idEval}`,
       (error, response, body) => {
         if (!error && response.statusCode == 200) {
+          console.log(JSON.parse(body));
           evaluationActions.startEvaluationAction.completed(JSON.parse(body));
         }else{
           // TODO: Debe de poder manejarse el error

@@ -13,6 +13,7 @@ const port = 3000;
 const app = express();
 
 var MongoClient = mongodb.MongoClient;
+var ObjectID = mongodb.ObjectID;
 
 // Configurar la ruta de archivos estaticos
 app.use('/', express.static(__dirname + '/public'));
@@ -69,40 +70,66 @@ app.get('/evaluation/:idEvaluation', (req, res) => {
 
       var arrParameters = [];
       var arrTeams = [];
-      colParameters.find(
-        {evaluationId: req.params.idEvaluation}
-      ).each((err, doc) => {
+
+      // Getting teams
+      colTeams.find({evaluationId: req.params.idEvaluation}).each((err, doc) => {
         if (err) {
           console.log("error: ", err);
         }else{
           if (doc != null){
-            arrParameters.push({
-                id : doc._id,
-                name: doc.name,
-                max_range: doc.max_range,
-                min_range: doc.min_range,
-                weight: doc.weight,
-                value: 0
+            arrTeams.push({
+              id: doc._id,
+              name: doc.name
             });
           }else{
-            // Getting teams
-            colTeams.find({evaluationId: req.params.idEvaluation}).each((err, doc) => {
+            colParameters.find(
+              {
+                evaluationId: req.params.idEvaluation
+              }
+            ).each((err, docParam) => {
               if (err) {
                 console.log("error: ", err);
               }else{
-                if (doc != null){
-                  arrTeams.push({
-                    id: doc._id,
-                    name: doc.name
-                  });
+                if (docParam != null){
+                  var elem = {
+                      id : docParam._id,
+                      name: docParam.name,
+                      max_range: docParam.max_range,
+                      min_range: docParam.min_range,
+                      weight: docParam.weight,
+                      value: 0
+                  };
+                  arrParameters.push(elem);
+
                 }else{
-                  // Building json to send
-                  res.json({
-                    idEvaluation: req.params.idEvaluation,
-                    team: arrTeams[0],
-                    parameters: arrParameters,
-                    teams: arrTeams
+                  arrParameters.forEach((param, index) => {
+                    var colValues = db.collection('value');
+                    console.log("TID:", arrTeams[0].id);
+                    console.log("PID:", param.id.toHexString());
+                    colValues.findOne({
+                      teamId: arrTeams[0].id.toHexString(),
+                      parameterId: param.id.toHexString()
+                    }, (err, elemento) => {
+                      if (err) {
+                        console.log(err);
+                      } else if (elemento) {
+                        param.value = elemento.value;
+                        if (index == arrParameters.length-1){
+                          // es el ultimo
+                          console.log("Paramas2:" , arrParameters);
+                          // Building json to send
+                          res.json({
+                            idEvaluation: req.params.idEvaluation,
+                            team: arrTeams[0],
+                            parameters: arrParameters,
+                            teams: arrTeams
+                          });
+                        }
+                      }
+                    });
                   });
+
+
                 }
               }
             });
@@ -127,7 +154,6 @@ app.get('/evaluation/:idEvaluation/:idTeam', (req, res) => {
     } else {
       var colParameters = db.collection('parameter');
       var colTeams = db.collection('team');
-      var colValues = db.collection('value');
 
       var arrParameters = [];
       var arrTeams = [];
@@ -143,19 +169,25 @@ app.get('/evaluation/:idEvaluation/:idTeam', (req, res) => {
           console.log("error: ", err);
         }else{
           if (doc != null){
+            var colValues = db.collection('value');
             colValues.findOne({
-              parameterId: doc._id,
-              teamId: req.params.idTeam
+              teamId: req.params.idTeam,
+              parameterId: doc._id.toHexString()
             }, (err, elemento) => {
-              console.log("elemento", elemento);
-              arrParameters.push({
-                  id : doc._id,
-                  name: doc.name,
-                  max_range: doc.max_range,
-                  min_range: doc.min_range,
-                  weight: doc.weight,
-                  value: elemento.value
-              });
+              if (err) {
+                console.log(err);
+              } else if (elemento) {
+                arrParameters.push({
+                    id : doc._id,
+                    name: doc.name,
+                    max_range: doc.max_range,
+                    min_range: doc.min_range,
+                    weight: doc.weight,
+                    value: elemento.value
+                });
+              }else{
+                console.log("No hay una valor con esos valores");
+              }
             });
           }else{
             // Getting teams
@@ -187,24 +219,37 @@ app.get('/evaluation/:idEvaluation/:idTeam', (req, res) => {
       });
     }
   });
-
-
-  // res.json({
-  //   idEvaluation: req.params.idEvaluation,
-  //   team: {id:req.params.idTeam, name: 'Xuatinos'},
-  //   parameters: [
-  //     {id: 1, name: 'Dicción', min_range: 0, max_range: 5, weight: 0.5, value: 4},
-  //     {id: 2, name: 'Programación', min_range: 0, max_range: 5, weight: 0.5, value: 4}
-  //   ],
-  //   teams:[
-  //     {id:1, name: 'Grupo 7'},
-  //     {id:2, name: 'Los cuatinhos'},
-  //   ]
-  // });
 });
 
 // Post a evaluation scores
 app.post('/evaluation', (req, res) => {
   console.dir(req.body);
-  res.json({});
+  MongoClient.connect(config.URL_MONGODB, (err, db) => {
+    if (err) {
+      console.log('No es posible conectarse al servidor mongodb. Error:', err);
+      res.json({error: err});
+    }else{
+      var teamId = req.body.teamId;
+      var colValues = db.collection('value');
+
+      req.body.parameters.forEach((param)=>{
+        colValues.update({
+            parameterId: param.parameterId,
+            teamId: req.body.teamId
+          }, {
+            $set: {value: param.value}
+          }, {
+            upsert:true, w: 1
+          }, function(err, result) {
+            if (err){
+              console.log('Error al actualizar el parametro.value: ', err);
+            }else{
+              res.json({});
+            }
+          }
+        );
+      });
+    }
+  });
+
 });
