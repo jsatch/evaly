@@ -7,7 +7,7 @@ import request from 'request';
 import evaluationActions from '../actions/EvaluationActions'
 
 // service URI
-import config from '../config';
+import config from '../../config';
 
 var EvaluationStore = Reflux.createStore({
   events : {

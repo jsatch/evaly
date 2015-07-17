@@ -8,12 +8,19 @@ import bodyParser from 'body-parser';
 import mongodb from 'mongodb';
 
 import config from './config';
+import routes from './server/routes';
 
 const port = 3000;
 const app = express();
 
 var MongoClient = mongodb.MongoClient;
 var ObjectID = mongodb.ObjectID;
+
+// Configuramos las rutas dinamicas de nuestro proyecto
+for (var key in routes){
+  console.log("SER:", key);
+  app.get(key, routes[key]);
+}
 
 // Configurar la ruta de archivos estaticos
 app.use('/', express.static(__dirname + '/public'));
