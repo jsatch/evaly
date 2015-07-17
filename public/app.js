@@ -25,7 +25,19 @@ module.exports = exports["default"];
 },{"reflux":551}],2:[function(require,module,exports){
 'use strict';
 
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
 var _react = require('react');
 
@@ -33,7 +45,13 @@ var _react2 = _interopRequireDefault(_react);
 
 var _reactRouter = require('react-router');
 
+var _reactRouter2 = _interopRequireDefault(_reactRouter);
+
 var _reactRouterLibHistory = require('react-router/lib/History');
+
+var _materialUi = require('material-ui');
+
+var _materialUi2 = _interopRequireDefault(_materialUi);
 
 var _componentsEvalyAppReact = require('./components/EvalyApp.react');
 
@@ -51,9 +69,50 @@ var _componentsLoginLoginPageReact2 = _interopRequireDefault(_componentsLoginLog
   </Router>
 ), document.getElementById('container'));*/
 
-_react2['default'].render(_react2['default'].createElement(_componentsEvalyAppReact2['default'], null), document.getElementById('container'));
+//React.render(<EvalyApp/>, document.getElementById('container'));
 
-},{"./components/EvalyApp.react":12,"./components/login/LoginPage.react":15,"react":550,"react-router":363,"react-router/lib/History":340}],3:[function(require,module,exports){
+var Route = _reactRouter2['default'].Route;
+
+var routes = _react2['default'].createElement(
+  Route,
+  { path: '/', handler: App },
+  _react2['default'].createElement(Route, { path: 'login', handler: _componentsLoginLoginPageReact2['default'] }),
+  _react2['default'].createElement(Route, { path: 'main', handler: _componentsEvalyAppReact2['default'] })
+);
+var RouteHandler = _reactRouter2['default'].RouteHandler;
+
+var App = (function (_React$Component) {
+  function App() {
+    _classCallCheck(this, App);
+
+    _get(Object.getPrototypeOf(App.prototype), 'constructor', this).apply(this, arguments);
+  }
+
+  _inherits(App, _React$Component);
+
+  _createClass(App, [{
+    key: 'render',
+    value: function render() {
+      _react2['default'].createElement(
+        'div',
+        null,
+        _react2['default'].createElement(RouteHandler, null)
+      );
+    }
+  }]);
+
+  return App;
+})(_react2['default'].Component);
+
+exports['default'] = App;
+;
+
+_reactRouter2['default'].run(routes, _reactRouter2['default'].HashLocation, function (Root) {
+  _react2['default'].render(_react2['default'].createElement(Root, null), document.getElementById('container'));
+});
+module.exports = exports['default'];
+
+},{"./components/EvalyApp.react":12,"./components/login/LoginPage.react":15,"material-ui":245,"react":550,"react-router":363,"react-router/lib/History":340}],3:[function(require,module,exports){
 /*
  * Module dependencies
  */
@@ -1141,6 +1200,11 @@ var _materialUi = require('material-ui');
 
 var _materialUi2 = _interopRequireDefault(_materialUi);
 
+var TextField = _materialUi2['default'].TextField;
+var FlatButton = _materialUi2['default'].FlatButton;
+
+var ThemeManager = new _materialUi2['default'].Styles.ThemeManager();
+
 var LoginPage = (function (_React$Component) {
   function LoginPage() {
     _classCallCheck(this, LoginPage);
@@ -1167,12 +1231,23 @@ var LoginPage = (function (_React$Component) {
           primary: true })
       );
     }
+  }, {
+    key: 'getChildContext',
+    value: function getChildContext() {
+      return {
+        muiTheme: ThemeManager.getCurrentTheme()
+      };
+    }
   }]);
 
   return LoginPage;
 })(_react2['default'].Component);
 
 exports['default'] = LoginPage;
+
+LoginPage.childContextTypes = {
+  muiTheme: _react2['default'].PropTypes.object
+};
 module.exports = exports['default'];
 
 },{"material-ui":245,"react":550}],16:[function(require,module,exports){
