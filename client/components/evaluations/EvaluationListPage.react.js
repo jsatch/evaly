@@ -9,10 +9,10 @@ import Evaluation from './Evaluation.react';
 import Mui from 'material-ui';
 
 // Stores
-import EvaluationStore from '../stores/EvaluationStore';
+import EvaluationStore from '../../../stores/EvaluationStore';
 
 // Actions
-import evaluationActions from '../actions/EvaluationActions';
+import evaluationActions from '../../../actions/EvaluationActions';
 
 var ThemeManager = new Mui.Styles.ThemeManager();
 var Dialog = Mui.Dialog;
@@ -20,8 +20,9 @@ var Dialog = Mui.Dialog;
 export default class EvaluationListPage extends React.Component{
   constructor(props){
     super(props);
+
     this.state = {
-      evaluationList: [],
+      evaluationList: props.evaluationList || [],
       modal: false,
       eventConfig: null
     }
@@ -59,8 +60,12 @@ export default class EvaluationListPage extends React.Component{
   render() {
     var dialog;
     if (this.state.modal){
+      let standardActions = [
+        { text: 'Cancel', onTouchTap: this._onDialogCancel.bind(this) }
+      ];
       dialog = <Dialog
         ref="evaluationDialog"
+        actions={standardActions}
         title="Evaluación"
         openImmediately={true}>
         <Evaluation initialEventConfig={this.state.eventConfig}/>
@@ -79,6 +84,13 @@ export default class EvaluationListPage extends React.Component{
       </div>
 
     );
+  }
+  _onDialogCancel() {
+    this.setState({
+      evaluationList: this.state.evaluationList,
+      modal:false,
+      eventConfig: this.state.eventConfig
+    });
   }
   getChildContext() {
     return {

@@ -9,12 +9,6 @@ var Table = Mui.Table;
 export default class EvaluationListTable extends React.Component{
   constructor(props) {
     super(props);
-      /*let rowData = [
-      {id: {content: '1'}, nombre: {content: 'Evaluación 1'}, estado: {content: 'Iniciado'}},
-      {id: {content: '2'}, nombre: {content: 'Evaluación 2'}, estado: {content: 'Por Iniciar'}},
-      {id: {content: '3'}, nombre: {content: 'Evaluación 3'}, estado: {content: 'Finalizado'}},
-
-    ];*/
 
     this.headerCols = {
       id: {

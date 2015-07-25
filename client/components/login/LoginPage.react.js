@@ -14,15 +14,23 @@ export default class LoginPage extends React.Component{
   render() {
     return (
       <div className='login'>
-        <TextField
-          ref="usuario"
-          hintText="Ingrese su usuario"/>
-        <TextField
-          ref="password"
-          hintText="Ingrese su password"/>
-        <FlatButton
-          label="Guardar"
-          primary={true} />
+        <form>
+          <div>
+          <TextField
+            ref="usuario"
+            hintText="Ingrese su usuario"/>
+          </div>
+          <div>
+          <TextField
+            ref="password"
+            hintText="Ingrese su password"/>
+          </div>
+          <div>
+          <FlatButton
+            label="Guardar"
+            primary={true} />
+          </div>
+        </form>
       </div>
     );
   }

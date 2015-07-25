@@ -9,10 +9,10 @@ import EvaluationForm from './EvaluationForm.react';
 import EvaluationGroups from './EvaluationGroups.react';
 
 // Stores
-import EvaluationStore from '../stores/EvaluationStore';
+import EvaluationStore from '../../../stores/EvaluationStore';
 
 // Actions
-import evaluationActions from '../actions/EvaluationActions';
+import evaluationActions from '../../../actions/EvaluationActions';
 
 export default class Evaluation extends React.Component{
   constructor(props){

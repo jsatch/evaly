@@ -3,7 +3,7 @@
  */
 import React from 'react';
 
-var JSX = require('node-jsx').install({harmony: true});
+//var JSX = require('node-jsx').install({harmony: true});
 
 import LoginPage from '../client/components/login/LoginPage.react';
 
@@ -12,6 +12,6 @@ export default class LoginController {
     console.log("SERVER:", "entra a LoginController");
 
     var reactHtml = React.renderToString(<LoginPage />);
-    res.render('login.ejs', {reactOutput: reactHtml});
+    res.render('index.ejs', {reactOutput: reactHtml});
   }
 }
