@@ -21,7 +21,12 @@ export default class ListaEvaluacionesController {
     var unsuscribe = EvaluationStore.listen((data) => {
       if (data.event === EvaluationStore.events.EVALUATION_LOADED){
         var reactHtml = React.renderToString(<EvaluationListPage evaluationList={data.data}/>);
-        res.render('index.ejs', {reactOutput: reactHtml});
+        res.render('index.ejs', {
+          reactOutput: reactHtml,
+          state: JSON.stringify({
+            evaluationList: data.data
+          })
+        });
         unsuscribe();
       }
     });

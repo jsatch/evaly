@@ -22,7 +22,7 @@ export default class EvaluationListPage extends React.Component{
     super(props);
 
     this.state = {
-      evaluationList: props.evaluationList || [],
+      evaluationList: props.evaluationList || props.initialState.evaluationList,
       modal: false,
       eventConfig: null
     }
@@ -36,26 +36,22 @@ export default class EvaluationListPage extends React.Component{
          eventConfig: null
        });
     }else if (data.event === EvaluationStore.events.START_EVALUATION){
-        this.setState({
-          evaluationList: this.state.evaluationList,
-          modal:true,
-          eventConfig: data.data
-        });
+      this.setState({
+        evaluationList: this.state.evaluationList,
+        modal:true,
+        eventConfig: data.data
+      });
     }
 
   }
 
   onEvaluationStart(evaluationId) {
-    console.log("EvaluationListPage", evaluationId);
     evaluationActions.startEvaluationAction(evaluationId);
   }
 
   componentDidMount() {
     this.unsubscribeOnEvalutionLoaded = EvaluationStore.listen(
       this.onEvaluationsLoaded);
-    //console.log("EvaluationListPage - EvaluationStore", EvaluationStore);
-    //console.log("EvaluationListPage - listEvaluationsAction", listEvaluationsAction);
-    (evaluationActions.listEvaluationsAction)();
   }
   render() {
     var dialog;

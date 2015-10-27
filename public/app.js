@@ -102,7 +102,8 @@ exports['default'] = App;
 ;
 
 _reactRouter2['default'].run(routes, _reactRouter2['default'].HistoryLocation, function (Root) {
-  _react2['default'].render(_react2['default'].createElement(Root, null), document.getElementById('container'));
+  var initialState = JSON.parse(document.getElementById('initial-state').innerHTML);
+  _react2['default'].render(_react2['default'].createElement(Root, { initialState: initialState }), document.getElementById('container'));
 });
 module.exports = exports['default'];
 
@@ -760,7 +761,7 @@ var EvaluationListPage = (function (_React$Component) {
     _get(Object.getPrototypeOf(EvaluationListPage.prototype), 'constructor', this).call(this, props);
 
     this.state = {
-      evaluationList: props.evaluationList || [],
+      evaluationList: props.evaluationList || props.initialState.evaluationList,
       modal: false,
       eventConfig: null
     };
@@ -789,16 +790,12 @@ var EvaluationListPage = (function (_React$Component) {
   }, {
     key: 'onEvaluationStart',
     value: function onEvaluationStart(evaluationId) {
-      console.log('EvaluationListPage', evaluationId);
       _actionsEvaluationActions2['default'].startEvaluationAction(evaluationId);
     }
   }, {
     key: 'componentDidMount',
     value: function componentDidMount() {
       this.unsubscribeOnEvalutionLoaded = _storesEvaluationStore2['default'].listen(this.onEvaluationsLoaded);
-      //console.log("EvaluationListPage - EvaluationStore", EvaluationStore);
-      //console.log("EvaluationListPage - listEvaluationsAction", listEvaluationsAction);
-      _actionsEvaluationActions2['default'].listEvaluationsAction();
     }
   }, {
     key: 'render',

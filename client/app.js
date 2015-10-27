@@ -27,5 +27,7 @@ export default class App extends React.Component{
 };
 
 Router.run(routes, Router.HistoryLocation, (Root) => {
-  React.render(<Root />, document.getElementById('container'));
+  var initialState = JSON.parse(
+    document.getElementById('initial-state').innerHTML);
+  React.render(<Root initialState={initialState} />, document.getElementById('container'));
 });
